@@ -245,43 +245,49 @@ class ModernControl(tk.Frame):
         self.numerator_label.pack()
         self.tf_numerator = tk.Entry(self, bd = 5, bg="powder blue")
         self.tf_numerator.insert("end", "1")
-        self.tf_numerator.pack(pady=10, padx=10)
+        self.tf_numerator.pack(pady=5, padx=10)
 
         self.denominator_label = tk.Label(self, text="Transfer function Denumerator (Algebraic form):", font=('arial', 15), bg="wheat")
         self.denominator_label.pack()
         self.tf_denominator = tk.Entry(self, bd = 5, bg="cornsilk")
         self.tf_denominator.insert("end", "s*(s+1)")
-        self.tf_denominator.pack(pady=10, padx=10)
+        self.tf_denominator.pack(pady=5, padx=10)
+
+        self.sampling_label = tk.Label(self, text="System Sampling Time period (seconds):", font=('arial', 15), bg="wheat")
+        self.sampling_label.pack()
+        self.sampling_time = tk.Entry(self, bd = 5, bg="cornsilk")
+        self.sampling_time.insert("end", "1")
+        self.sampling_time.pack(pady=5, padx=10)
 
         # button and functionality for bode plot
         self.bode_button = ttk.Button(self, text="Plot Open-loop Bode", width=25,
                             command= lambda: self.plot_bode(self.tf_numerator.get(), self.tf_denominator.get()))
-        self.bode_button.pack(pady=10, padx=10)
+        self.bode_button.pack(pady=5, padx=10)
 
         # button and functionality for bode plot
         self.cltf_bode_button = ttk.Button(self, text="Plot Closed-loop Bode", width=25,
                             command= lambda: self.plot_bode(self.tf_numerator.get(), self.tf_denominator.get(), closed_loop=True))
-        self.cltf_bode_button.pack(pady=10, padx=10)
+        self.cltf_bode_button.pack(pady=5, padx=10)
 
         # button and command functionality for Nyquist plot
         self.nyquist_button = ttk.Button(self, text="Make Nyquist plot", width=25,
                             command= lambda: self.plot_nyquist(self.tf_numerator.get(), self.tf_denominator.get()))
-        self.nyquist_button.pack(pady=10, padx=10)
+        self.nyquist_button.pack(pady=5, padx=10)
 
         # button and command functionality for Time domain plots
         self.step_response_button = ttk.Button(self, text="Plot Step Response", width=25,
-                            command= lambda: self.time_domain_response(self.tf_numerator.get(), self.tf_denominator.get()))
-        self.step_response_button.pack(pady=10, padx=10)
+                            command= lambda: self.time_domain_response(self.tf_numerator.get(), self.tf_denominator.get(), self.sampling_time.get()))
+        self.step_response_button.pack(pady=5, padx=10)
 
         # button and command functionality for Time domain plots
         self.ramp = ttk.Button(self, text="Plot Ramp Response", width=25,
-                            command= lambda: self.time_domain_response(self.tf_numerator.get(), self.tf_denominator.get(), ramp=True))
-        self.ramp.pack(pady=10, padx=10)
+                            command= lambda: self.time_domain_response(self.tf_numerator.get(), self.tf_denominator.get(), self.sampling_time.get(), ramp=True))
+        self.ramp.pack(pady=5, padx=10)
 
         # return to home button
         self.home_button = ttk.Button(self, text="Return to Home", width=25,
                             command=lambda: controller.show_frame(StartPage))
-        self.home_button.pack(padx=10, pady=10)
+        self.home_button.pack(padx=5, pady=10)
 
         # create a canvas object and insert front page image
         self.canvas = tk.Canvas(self, width=300, height=300, bg="wheat")
@@ -351,12 +357,13 @@ class ModernControl(tk.Frame):
         plt.show()
         return
 
-    def time_domain_response(self, tf_numerator, tf_denominator, ramp=False):
+    def time_domain_response(self, tf_numerator, tf_denominator, sampling_time, ramp=False):
         """ Plot the time-domain step response of the given transfer function.
             The closed-loop form of the transfer function must be used for this.
         """
         sys_tf = (eval(tf_numerator)/(eval(tf_denominator)))
-        closed_loop_tf = control.feedback(sys_tf, 1)
+        discrete_sys_tf = control.sample_system(sys_tf, int(sampling_time), method='zoh')
+        closed_loop_tf = control.feedback(discrete_sys_tf, 1)
 
         # if ramp selected, convert to ramp response, otherwise do step
         if ramp:
@@ -369,9 +376,9 @@ class ModernControl(tk.Frame):
             [x,y] = control.step_response(closed_loop_tf)
             plt.figure(4)
             title_txt = "Step"
-        plt.plot(x,y)
-        plt.title("Time-domain Unit {0} Response".format(title_txt))
-        plt.xlabel('Time (seconds)')
+        plt.stem(x)
+        plt.title("Discrete Time Response to {0} input".format(title_txt))
+        plt.xlabel("Sample number (sample period of {0}".format(sampling_time))
         plt.ylabel('Response')
         plt.grid(1)
         plt.show()
