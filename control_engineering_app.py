@@ -95,42 +95,47 @@ class ClassicControl(tk.Frame):
         self.label = tk.Label(self, text="Classical Control Systems Plotter", font=('Helvetica', 30, 'bold'), bg="light goldenrod", bd=5)
         self.label.pack(pady=10,padx=10)
 
-        self.numerator_label = tk.Label(self, text="Open-loop Transfer function Numerator (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="light goldenrod")
-        self.numerator_label.pack()
-        self.tf_numerator = tk.Entry(self, bd = 5, bg="powder blue")
-        self.tf_numerator.insert("end", "1")
-        self.tf_numerator.pack(pady=5, padx=10)
+        self.oltf_label = tk.Label(self, text="Open-loop Transfer function (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="light goldenrod")
+        self.oltf_label.pack()
+        self.oltf = tk.Entry(self, bd = 5, bg="powder blue")
+        self.oltf.insert("end", "1/(s*(s+1))")
+        self.oltf.pack(pady=5, padx=10)
 
-        self.denominator_label = tk.Label(self, text="Open-loop Transfer function Denumerator (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="light goldenrod")
-        self.denominator_label.pack()
-        self.tf_denominator = tk.Entry(self, bd = 5, bg="cornsilk")
-        self.tf_denominator.insert("end", "s*(s+1)")
-        self.tf_denominator.pack(pady=5, padx=10)
+        self.compensator_label = tk.Label(self, text="Open-loop Transfer function Compensator (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="light goldenrod")
+        self.compensator_label.pack()
+        self.tf_compensator = tk.Entry(self, bd = 5, bg="cornsilk")
+        self.tf_compensator.insert("end", "1")
+        self.tf_compensator.pack(pady=5, padx=10)
 
         # button and functionality for bode plot
         self.bode_button = ttk.Button(self, text="Plot Open-loop Bode", width=25,
-                            command= lambda: self.plot_bode(self.tf_numerator.get(), self.tf_denominator.get()))
+                            command= lambda: self.plot_bode(self.oltf.get(), self.tf_compensator.get()))
         self.bode_button.pack(pady=5, padx=10)
 
         # button and functionality for bode plot
         self.cltf_bode_button = ttk.Button(self, text="Plot Closed-loop Bode", width=25,
-                            command= lambda: self.plot_bode(self.tf_numerator.get(), self.tf_denominator.get(), closed_loop=True))
+                            command= lambda: self.plot_bode(self.oltf.get(), self.tf_compensator.get(), closed_loop=True))
         self.cltf_bode_button.pack(pady=5, padx=10)
 
         # button and command functionality for Nyquist plot
         self.nyquist_button = ttk.Button(self, text="Make Nyquist plot", width=25,
-                            command= lambda: self.plot_nyquist(self.tf_numerator.get(), self.tf_denominator.get()))
+                            command= lambda: self.plot_nyquist(self.oltf.get(), self.tf_compensator.get()))
         self.nyquist_button.pack(pady=5, padx=10)
 
         # button and command functionality for Time domain plots
         self.step_response_button = ttk.Button(self, text="Plot Step Response", width=25,
-                            command= lambda: self.time_domain_response(self.tf_numerator.get(), self.tf_denominator.get()))
+                            command= lambda: self.time_domain_response(self.oltf.get(), self.tf_compensator.get()))
         self.step_response_button.pack(pady=5, padx=10)
 
         # button and command functionality for Time domain plots
         self.ramp = ttk.Button(self, text="Plot Ramp Response", width=25,
-                            command= lambda: self.time_domain_response(self.tf_numerator.get(), self.tf_denominator.get(), ramp=True))
+                            command= lambda: self.time_domain_response(self.oltf.get(), self.tf_compensator.get(), ramp=True))
         self.ramp.pack(pady=5, padx=10)
+
+        # button and command functionality for Root Locus plots
+        self.root_locus = ttk.Button(self, text="Plot Root Locus", width=25,
+                            command= lambda: self.root_locus_plot(self.oltf.get(), self.tf_compensator.get()))
+        self.root_locus.pack(pady=5, padx=10)
 
         # return to home button
         self.home_button = ttk.Button(self, text="Return to Home", width=25,
@@ -148,13 +153,13 @@ class ClassicControl(tk.Frame):
         signature.pack(side='bottom')
 
 
-    def plot_bode(self, tf_numerator, tf_denominator, closed_loop=False):
+    def plot_bode(self, oltf, tf_compensator, closed_loop=False):
         """ Plot either the open-loop or closed loop gain, dependent on closed_loop arg. 
             and phase response for the given transfer function. The closed-loop transfer function
             used is simply the unity gain negative feedback model of the given
             open-loop transfer function.
         """
-        sys_tf = (eval(tf_numerator)/(eval(tf_denominator)))
+        sys_tf = (eval(oltf)*(eval(tf_compensator)))
 
         if closed_loop:
             sys_tf = control.feedback(sys_tf, 1)
@@ -184,11 +189,11 @@ class ClassicControl(tk.Frame):
         plt.show()
         return
 
-    def plot_nyquist(self, tf_numerator, tf_denominator):
+    def plot_nyquist(self, oltf, tf_compensator):
         """ Form a Nyquist plot for the given transfer function. Includes phase angle
             lines for ease of reference.
         """
-        sys_tf = (eval(tf_numerator)/(eval(tf_denominator)))
+        sys_tf = (eval(oltf)*(eval(tf_compensator)))
         plt.figure(3)
         control.nyquist_plot(sys_tf)
         plt.axis([-2,2,-2,2])
@@ -205,11 +210,11 @@ class ClassicControl(tk.Frame):
         plt.show()
         return
 
-    def time_domain_response(self, tf_numerator, tf_denominator, ramp=False):
+    def time_domain_response(self, oltf, tf_compensator, ramp=False):
         """ Plot the time-domain step response of the given transfer function.
             The closed-loop form of the transfer function must be used for this.
         """
-        sys_tf = (eval(tf_numerator)/(eval(tf_denominator)))
+        sys_tf = (eval(oltf)*(eval(tf_compensator)))
         closed_loop_tf = control.feedback(sys_tf, 1)
 
         # if ramp selected, convert to ramp response, otherwise do step
@@ -218,16 +223,29 @@ class ClassicControl(tk.Frame):
             plt.figure(5)
             [time, _] = control.step_response(closed_loop_tf)
             [x,y] = control.step_response((closed_loop_tf/s), time)
-            plt.plot([0.0, max(x)], [0.0, max(x)], 'r--')
+            plt.plot([0.0, max(x)], [0.0, max(x)], 'r--', linewidth=1)
         else:
             [x,y] = control.step_response(closed_loop_tf)
             plt.figure(4)
             title_txt = "Step"
-        plt.plot(x,y)
+        plt.plot(x,y, linewidth=1, alpha=1)
         plt.title("Time-domain Unit {0} Response".format(title_txt))
         plt.xlabel('Time (seconds)')
         plt.ylabel('Response')
         plt.grid(1)
+        plt.show()
+        return
+
+    def root_locus_plot(self, oltf, tf_compensator):
+        """ Plot the closed-loop root locus plot for the system based on the open
+            loop transfer function poles and zeros.  
+        """
+        sys_tf = eval(oltf)*eval(tf_compensator)
+        control.rlocus(sys_tf)
+        plt.grid()
+        plt.title('System Nyquist Plot')
+        plt.xlabel('Real')
+        plt.ylabel('Imaginary')
         plt.show()
         return
 
