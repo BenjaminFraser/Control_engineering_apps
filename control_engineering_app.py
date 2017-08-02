@@ -25,7 +25,7 @@ class ClassicalControlApp(tk.Tk):
         tk.Tk.iconbitmap(self)
         tk.Tk.wm_title(self, "Control Engineering Tool")
         
-        container = tk.Frame(self, width=1200, height=800)
+        container = tk.Frame(self, width=1200, height=1000)
 
         container.pack(side="top", fill="both", expand = True)
         container.grid_rowconfigure(0, weight=1)
@@ -53,11 +53,14 @@ class ClassicalControlApp(tk.Tk):
 
         
 class StartPage(tk.Frame):
-
+    """ Main application welcome page with a selection of buttons linking to
+        seperate pages that analyse classical and digital (modern) control
+        systems.
+    """
     def __init__(self, parent, controller):
         tk.Frame.__init__(self,parent, bg="powder blue")
-        label = tk.Label(self, text="Control Engineering Modeller", font=('arial', 30, 'bold'), fg="steel blue", bg="powder blue")
-        label.pack(pady=10,padx=10)
+        label = tk.Label(self, text="Control Engineering Modeller", font=('Helvetica', 30, 'bold'), fg="royal blue", bg="white smoke", bd=5)
+        label.pack(pady=10,padx=10, fill='both')
 
         classic_button = ttk.Button(self, text="Classical Control Analysis", width=30,
                             command=lambda: controller.show_frame(ClassicControl))
@@ -83,53 +86,56 @@ class StartPage(tk.Frame):
 
 
 class ClassicControl(tk.Frame):
-
+    """ Interactive page for analysis and visualisation of classical control systems.
+        This focuses on systems operating on analogue models, that are analysed using
+        Laplace transforms in the frequency domain.
+    """
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg="light goldenrod")
-        self.label = tk.Label(self, text="Classical Control Systems Plotter", font=('arial', 30, 'bold'), bg="light goldenrod")
+        self.label = tk.Label(self, text="Classical Control Systems Plotter", font=('Helvetica', 30, 'bold'), bg="light goldenrod", bd=5)
         self.label.pack(pady=10,padx=10)
 
-        self.numerator_label = tk.Label(self, text="Transfer function Numerator (Algebraic form):", font=('arial', 15), bg="light goldenrod")
+        self.numerator_label = tk.Label(self, text="Open-loop Transfer function Numerator (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="light goldenrod")
         self.numerator_label.pack()
         self.tf_numerator = tk.Entry(self, bd = 5, bg="powder blue")
         self.tf_numerator.insert("end", "1")
-        self.tf_numerator.pack(pady=10, padx=10)
+        self.tf_numerator.pack(pady=5, padx=10)
 
-        self.denominator_label = tk.Label(self, text="Transfer function Denumerator (Algebraic form):", font=('arial', 15), bg="light goldenrod")
+        self.denominator_label = tk.Label(self, text="Open-loop Transfer function Denumerator (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="light goldenrod")
         self.denominator_label.pack()
         self.tf_denominator = tk.Entry(self, bd = 5, bg="cornsilk")
         self.tf_denominator.insert("end", "s*(s+1)")
-        self.tf_denominator.pack(pady=10, padx=10)
+        self.tf_denominator.pack(pady=5, padx=10)
 
         # button and functionality for bode plot
         self.bode_button = ttk.Button(self, text="Plot Open-loop Bode", width=25,
                             command= lambda: self.plot_bode(self.tf_numerator.get(), self.tf_denominator.get()))
-        self.bode_button.pack(pady=10, padx=10)
+        self.bode_button.pack(pady=5, padx=10)
 
         # button and functionality for bode plot
         self.cltf_bode_button = ttk.Button(self, text="Plot Closed-loop Bode", width=25,
                             command= lambda: self.plot_bode(self.tf_numerator.get(), self.tf_denominator.get(), closed_loop=True))
-        self.cltf_bode_button.pack(pady=10, padx=10)
+        self.cltf_bode_button.pack(pady=5, padx=10)
 
         # button and command functionality for Nyquist plot
         self.nyquist_button = ttk.Button(self, text="Make Nyquist plot", width=25,
                             command= lambda: self.plot_nyquist(self.tf_numerator.get(), self.tf_denominator.get()))
-        self.nyquist_button.pack(pady=10, padx=10)
+        self.nyquist_button.pack(pady=5, padx=10)
 
         # button and command functionality for Time domain plots
         self.step_response_button = ttk.Button(self, text="Plot Step Response", width=25,
                             command= lambda: self.time_domain_response(self.tf_numerator.get(), self.tf_denominator.get()))
-        self.step_response_button.pack(pady=10, padx=10)
+        self.step_response_button.pack(pady=5, padx=10)
 
         # button and command functionality for Time domain plots
         self.ramp = ttk.Button(self, text="Plot Ramp Response", width=25,
                             command= lambda: self.time_domain_response(self.tf_numerator.get(), self.tf_denominator.get(), ramp=True))
-        self.ramp.pack(pady=10, padx=10)
+        self.ramp.pack(pady=5, padx=10)
 
         # return to home button
         self.home_button = ttk.Button(self, text="Return to Home", width=25,
                             command=lambda: controller.show_frame(StartPage))
-        self.home_button.pack(padx=10, pady=10)
+        self.home_button.pack(padx=5, pady=10)
 
         # create a canvas object and insert front page image
         self.canvas = tk.Canvas(self, width=300, height=300, bg="light goldenrod")
@@ -143,6 +149,11 @@ class ClassicControl(tk.Frame):
 
 
     def plot_bode(self, tf_numerator, tf_denominator, closed_loop=False):
+        """ Plot either the open-loop or closed loop gain, dependent on closed_loop arg. 
+            and phase response for the given transfer function. The closed-loop transfer function
+            used is simply the unity gain negative feedback model of the given
+            open-loop transfer function.
+        """
         sys_tf = (eval(tf_numerator)/(eval(tf_denominator)))
 
         if closed_loop:
@@ -174,6 +185,9 @@ class ClassicControl(tk.Frame):
         return
 
     def plot_nyquist(self, tf_numerator, tf_denominator):
+        """ Form a Nyquist plot for the given transfer function. Includes phase angle
+            lines for ease of reference.
+        """
         sys_tf = (eval(tf_numerator)/(eval(tf_denominator)))
         plt.figure(3)
         control.nyquist_plot(sys_tf)
@@ -218,64 +232,98 @@ class ClassicControl(tk.Frame):
         return
 
 class ModernControl(tk.Frame):
-
+    """ Interactive page for analysis and visualisation of classical control systems.
+        This focuses on systems operating on analogue models, that are analysed using
+        Laplace transforms in the frequency domain.
+    """
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg="wheat")
-        label = tk.Label(self, text="Classical Control Systems Plotter", font=('arial', 30, 'bold'), bg="wheat")
-        label.pack(pady=10,padx=10)
+        self.label = tk.Label(self, text="Classical Control Systems Plotter", font=('arial', 30, 'bold'), bg="wheat")
+        self.label.pack(pady=10,padx=10)
 
-        numerator_label = tk.Label(self, text="Transfer function Numerator (Algebraic form):", font=('arial', 15), bg="wheat")
-        numerator_label.pack()
-        tf_numerator = tk.Entry(self, bd = 5, bg="powder blue")
-        tf_numerator.insert("end", "1")
-        tf_numerator.pack(pady=10, padx=10)
+        self.numerator_label = tk.Label(self, text="Transfer function Numerator (Algebraic form):", font=('arial', 15), bg="wheat")
+        self.numerator_label.pack()
+        self.tf_numerator = tk.Entry(self, bd = 5, bg="powder blue")
+        self.tf_numerator.insert("end", "1")
+        self.tf_numerator.pack(pady=10, padx=10)
 
-        denominator_label = tk.Label(self, text="Transfer function Denumerator (Algebraic form):", font=('arial', 15), bg="wheat")
-        denominator_label.pack()
-        tf_denominator = tk.Entry(self, bd = 5, bg="cornsilk")
-        tf_denominator.insert("end", "s*(s+1)")
-        tf_denominator.pack(pady=10, padx=10)
+        self.denominator_label = tk.Label(self, text="Transfer function Denumerator (Algebraic form):", font=('arial', 15), bg="wheat")
+        self.denominator_label.pack()
+        self.tf_denominator = tk.Entry(self, bd = 5, bg="cornsilk")
+        self.tf_denominator.insert("end", "s*(s+1)")
+        self.tf_denominator.pack(pady=10, padx=10)
 
         # button and functionality for bode plot
-        bode_button = ttk.Button(self, text="Make Bode Plot", width=25,
-                            command= lambda: self.plot_bode(tf_numerator.get(), tf_denominator.get()))
-        bode_button.pack(pady=10, padx=10)
+        self.bode_button = ttk.Button(self, text="Plot Open-loop Bode", width=25,
+                            command= lambda: self.plot_bode(self.tf_numerator.get(), self.tf_denominator.get()))
+        self.bode_button.pack(pady=10, padx=10)
+
+        # button and functionality for bode plot
+        self.cltf_bode_button = ttk.Button(self, text="Plot Closed-loop Bode", width=25,
+                            command= lambda: self.plot_bode(self.tf_numerator.get(), self.tf_denominator.get(), closed_loop=True))
+        self.cltf_bode_button.pack(pady=10, padx=10)
 
         # button and command functionality for Nyquist plot
-        nyquist_button = ttk.Button(self, text="Make Nyquist plot", width=25,
-                            command= lambda: self.plot_nyquist(tf_numerator.get(), tf_denominator.get()))
-        nyquist_button.pack(pady=10, padx=10)
+        self.nyquist_button = ttk.Button(self, text="Make Nyquist plot", width=25,
+                            command= lambda: self.plot_nyquist(self.tf_numerator.get(), self.tf_denominator.get()))
+        self.nyquist_button.pack(pady=10, padx=10)
 
         # button and command functionality for Time domain plots
-        time_response_button = ttk.Button(self, text="Plot Step and Ramp Response", width=25,
-                            command= lambda: self.time_domain_response(tf_numerator.get(), tf_denominator.get()))
-        time_response_button.pack(pady=10, padx=10)
+        self.step_response_button = ttk.Button(self, text="Plot Step Response", width=25,
+                            command= lambda: self.time_domain_response(self.tf_numerator.get(), self.tf_denominator.get()))
+        self.step_response_button.pack(pady=10, padx=10)
+
+        # button and command functionality for Time domain plots
+        self.ramp = ttk.Button(self, text="Plot Ramp Response", width=25,
+                            command= lambda: self.time_domain_response(self.tf_numerator.get(), self.tf_denominator.get(), ramp=True))
+        self.ramp.pack(pady=10, padx=10)
 
         # return to home button
-        home_button = ttk.Button(self, text="Return to Home", width=25,
+        self.home_button = ttk.Button(self, text="Return to Home", width=25,
                             command=lambda: controller.show_frame(StartPage))
-        home_button.pack(padx=10, pady=10)
+        self.home_button.pack(padx=10, pady=10)
 
-    def plot_bode(self, tf_numerator, tf_denominator):
+        # create a canvas object and insert front page image
+        self.canvas = tk.Canvas(self, width=300, height=300, bg="wheat")
+        self.canvas.pack()
+        self.img_file = Image.open("transfer_function_system.gif")
+        self.display_img = ImageTk.PhotoImage(self.img_file)
+        self.canvas.create_image(150, 150, image=self.display_img)
+
+        signature = tk.Label(self, text="Created by B.D. Fraser", font=('arial', 8), fg="steel blue", bg="powder blue")
+        signature.pack(side='bottom')
+
+
+    def plot_bode(self, tf_numerator, tf_denominator, closed_loop=False):
+        """ Plot either the open-loop or closed loop gain, dependent on closed_loop arg. 
+            and phase response for the given transfer function. The closed-loop transfer function
+            used is simply the unity gain negative feedback model of the given
+            open-loop transfer function.
+        """
         sys_tf = (eval(tf_numerator)/(eval(tf_denominator)))
+
+        if closed_loop:
+            sys_tf = control.feedback(sys_tf, 1)
+            plt.figure(2)
+        else:
+            plt.figure(1)
 
         # obtain magnitude, phase and freq range using python control
         mag, phase, omega = control.bode_plot(sys_tf, dB=True)
 
-        plt.figure(1)
-        plt.figtext(0.3, 0.93, "Gain and phase response Bode plots", size="large", weight="bold")
+        plt.figtext(0.3, 0.93, "Gain and Phase Response Bode Plots", size="large", weight="bold")
 
         # plot magnitude gain response sub-plot
         plt.subplot(2,1,1)
-        plt.semilogx(omega,mag,'k-',linewidth=2, color="r")
-        plt.grid(b=True, which='major', color='k', linestyle='-', alpha=0.8)
+        plt.semilogx(omega,mag,'k-',linewidth=1, color="b")
+        plt.grid(b=True, which='major', color='k', alpha=0.8)
         plt.grid(b=True, which='minor', color='k', linestyle='--', alpha=0.4)
         plt.ylabel('Gain magnitude (dB)', weight="bold")
 
         # plot phase response sub-plot
         plt.subplot(2,1,2)
-        plt.semilogx(omega,phase,'k-',linewidth=2, color="g")
-        plt.grid(b=True, which='major', color='k', linestyle='-', alpha=0.8)
+        plt.semilogx(omega,phase,'k-',linewidth=1, color="g")
+        plt.grid(b=True, which='major', color='k', alpha=0.8)
         plt.grid(b=True, which='minor', color='k', linestyle='--', alpha=0.4)
         plt.ylabel('Phase (degrees)', weight="bold")
         plt.xlabel('Frequency (rad/s)', weight="bold")
@@ -283,8 +331,11 @@ class ModernControl(tk.Frame):
         return
 
     def plot_nyquist(self, tf_numerator, tf_denominator):
+        """ Form a Nyquist plot for the given transfer function. Includes phase angle
+            lines for ease of reference.
+        """
         sys_tf = (eval(tf_numerator)/(eval(tf_denominator)))
-        plt.figure(2)
+        plt.figure(3)
         control.nyquist_plot(sys_tf)
         plt.axis([-2,2,-2,2])
         theta = np.linspace(0,6.284,100)
@@ -294,22 +345,32 @@ class ModernControl(tk.Frame):
         for j in range(len(phi)):
             plt.plot([0,np.sin(phi[j])],[0,np.cos(phi[j])],'g--')            
         plt.grid(1)
-        plt.title('Nyquist Plot')
+        plt.title('System Nyquist Plot')
         plt.xlabel('Real')
-        plt.ylabel('Imag')
+        plt.ylabel('Imaginary')
         plt.show()
         return
 
-    def time_domain_response(self, tf_numerator, tf_denominator, step=True, ramp=True):
+    def time_domain_response(self, tf_numerator, tf_denominator, ramp=False):
+        """ Plot the time-domain step response of the given transfer function.
+            The closed-loop form of the transfer function must be used for this.
         """
-        """
-
         sys_tf = (eval(tf_numerator)/(eval(tf_denominator)))
         closed_loop_tf = control.feedback(sys_tf, 1)
-        [x,y] = control.step_response(closed_loop_tf)
-        plt.figure(3)
+
+        # if ramp selected, convert to ramp response, otherwise do step
+        if ramp:
+            title_txt = "Ramp"
+            plt.figure(5)
+            [time, _] = control.step_response(closed_loop_tf)
+            [x,y] = control.step_response((closed_loop_tf/s), time)
+            plt.plot([0.0, max(x)], [0.0, max(x)], 'r--')
+        else:
+            [x,y] = control.step_response(closed_loop_tf)
+            plt.figure(4)
+            title_txt = "Step"
         plt.plot(x,y)
-        plt.title('Time-domain Unit Step Response')
+        plt.title("Time-domain Unit {0} Response".format(title_txt))
         plt.xlabel('Time (seconds)')
         plt.ylabel('Response')
         plt.grid(1)
