@@ -306,7 +306,7 @@ class ModernControl(tk.Frame):
         tk.Frame.__init__(self, parent, bg="wheat")
         top = tk.Frame(self, width=1200, height=100, bg="grey")
         top.pack(side="top")
-        self.label = tk.Label(top, text="Classical Control System Plotter", font=('Helvetica', 30, 'bold'), bg="grey", bd=5)
+        self.label = tk.Label(top, text="Digital Control System Plotter", font=('Helvetica', 30, 'bold'), bg="grey", bd=5)
         self.label.pack(pady=10,padx=10)
 
         self.data_area = tk.Frame(self, width=500, height=600, bg="wheat")

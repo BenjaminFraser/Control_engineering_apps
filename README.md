@@ -14,6 +14,10 @@ The application is built using Python, with a tkinter GUI, and operates using py
 
 ![application time domain examples](example_images/time_response_examples.png?raw=True "Example of plotting a time-domain response to both step and ramp inputs.")
 
+![application discrete time examples](example_images/digital_control_example.png?raw=True "An overview of the modern control system interface within the application.")
+
+![application discrete time domain example](example_images/digital_control_example_2.png?raw=True "An example of the discrete time-domain plot capability.")
+
 ----------
 
 ## ACCESSING THE APPLICATION/SYSTEM
