@@ -7,7 +7,7 @@ from PIL import Image, ImageTk
 import tkinter as tk
 from tkinter import ttk
 from scipy import signal
-
+import math
 import control
 
 # basic definition for s-domain 's' operator
@@ -25,7 +25,7 @@ class ClassicalControlApp(tk.Tk):
         tk.Tk.iconbitmap(self)
         tk.Tk.wm_title(self, "Control Engineering Tool")
         
-        container = tk.Frame(self, width=1200, height=1000)
+        container = tk.Frame(self, width=1200, height=800)
 
         container.pack(side="top", fill="both", expand = True)
         container.grid_rowconfigure(0, weight=1)
@@ -92,66 +92,97 @@ class ClassicControl(tk.Frame):
     """
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg="light goldenrod")
-        self.label = tk.Label(self, text="Classical Control Systems Plotter", font=('Helvetica', 30, 'bold'), bg="light goldenrod", bd=5)
+        top = tk.Frame(self, width=1200, height=100, bg="grey")
+        top.pack(side="top")
+        self.label = tk.Label(top, text="Classical Control Systems Plotter", font=('Helvetica', 30, 'bold'), bg="grey", bd=5)
         self.label.pack(pady=10,padx=10)
 
-        self.oltf_label = tk.Label(self, text="Open-loop Transfer function (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="light goldenrod")
+        self.data_area = tk.Frame(self, width=500, height=600, bg="light goldenrod")
+        self.data_area.pack(side='left', padx=10)
+
+        self.oltf_label = tk.Label(self.data_area, text="Open-loop Transfer function (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="light goldenrod")
         self.oltf_label.pack()
-        self.oltf = tk.Entry(self, bd = 5, bg="powder blue")
+        self.oltf = tk.Entry(self.data_area, bd = 5, bg="powder blue")
         self.oltf.insert("end", "1/(s*(s+1))")
         self.oltf.pack(pady=5, padx=10)
 
-        self.compensator_label = tk.Label(self, text="Open-loop Transfer function Compensator (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="light goldenrod")
+        self.compensator_label = tk.Label(self.data_area, text="Open-loop Transfer function Compensator (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="light goldenrod")
         self.compensator_label.pack()
-        self.tf_compensator = tk.Entry(self, bd = 5, bg="cornsilk")
+        self.tf_compensator = tk.Entry(self.data_area, bd = 5, bg="cornsilk")
         self.tf_compensator.insert("end", "1")
         self.tf_compensator.pack(pady=5, padx=10)
 
         # button and functionality for bode plot
-        self.bode_button = ttk.Button(self, text="Plot Open-loop Bode", width=25,
+        self.bode_button = ttk.Button(self.data_area, text="Plot Open-loop Bode", width=25,
                             command= lambda: self.plot_bode(self.oltf.get(), self.tf_compensator.get()))
         self.bode_button.pack(pady=5, padx=10)
 
         # button and functionality for bode plot
-        self.cltf_bode_button = ttk.Button(self, text="Plot Closed-loop Bode", width=25,
+        self.cltf_bode_button = ttk.Button(self.data_area, text="Plot Closed-loop Bode", width=25,
                             command= lambda: self.plot_bode(self.oltf.get(), self.tf_compensator.get(), closed_loop=True))
         self.cltf_bode_button.pack(pady=5, padx=10)
 
         # button and command functionality for Nyquist plot
-        self.nyquist_button = ttk.Button(self, text="Make Nyquist plot", width=25,
+        self.nyquist_button = ttk.Button(self.data_area, text="Make Nyquist plot", width=25,
                             command= lambda: self.plot_nyquist(self.oltf.get(), self.tf_compensator.get()))
         self.nyquist_button.pack(pady=5, padx=10)
 
         # button and command functionality for Time domain plots
-        self.step_response_button = ttk.Button(self, text="Plot Step Response", width=25,
+        self.step_response_button = ttk.Button(self.data_area, text="Plot Step Response", width=25,
                             command= lambda: self.time_domain_response(self.oltf.get(), self.tf_compensator.get()))
         self.step_response_button.pack(pady=5, padx=10)
 
         # button and command functionality for Time domain plots
-        self.ramp = ttk.Button(self, text="Plot Ramp Response", width=25,
+        self.ramp = ttk.Button(self.data_area, text="Plot Ramp Response", width=25,
                             command= lambda: self.time_domain_response(self.oltf.get(), self.tf_compensator.get(), ramp=True))
         self.ramp.pack(pady=5, padx=10)
 
         # button and command functionality for Root Locus plots
-        self.root_locus = ttk.Button(self, text="Plot Root Locus", width=25,
+        self.root_locus = ttk.Button(self.data_area, text="Plot Root Locus", width=25,
                             command= lambda: self.root_locus_plot(self.oltf.get(), self.tf_compensator.get()))
         self.root_locus.pack(pady=5, padx=10)
 
         # return to home button
-        self.home_button = ttk.Button(self, text="Return to Home", width=25,
+        self.home_button = ttk.Button(self.data_area, text="Return to Home", width=25,
                             command=lambda: controller.show_frame(StartPage))
         self.home_button.pack(padx=5, pady=10)
 
+        self.diagram_area = tk.Frame(self, width=700, height=600, bg="light goldenrod")
+        self.diagram_area.pack(side='right')
+
         # create a canvas object and insert front page image
-        self.canvas = tk.Canvas(self, width=300, height=300, bg="light goldenrod")
+        self.canvas = tk.Canvas(self.diagram_area, width=700, height=300, bg="light goldenrod")
         self.canvas.pack()
         self.img_file = Image.open("transfer_function_system.gif")
         self.display_img = ImageTk.PhotoImage(self.img_file)
-        self.canvas.create_image(150, 150, image=self.display_img)
+        self.canvas.create_image(330, 150, image=self.display_img)
 
-        signature = tk.Label(self, text="Created by B.D. Fraser", font=('arial', 8), fg="steel blue", bg="powder blue")
-        signature.pack(side='bottom')
+        # results area for displaying current gain and phase margin
+        self.results_area = tk.Frame(self.diagram_area, width=700, height=200, bg="light goldenrod")
+        self.results_area.pack()
 
+        self.margin_label = tk.Label(self.results_area, text="System stability margins:", font=('Helvetica', 20, 'bold'), bg="light goldenrod")
+        self.margin_label.pack(pady=20)
+
+        self.current_margins = tk.StringVar()
+        self.margin_text = tk.Label(self.results_area, textvariable=self.current_margins, height=4, width=50, font=('Helvetica', 15, 'bold'), bg="light goldenrod")
+        self.margin_text.pack(pady=5)
+        self.current_margins.set("Input a function to display gain and phase margins")
+
+        self.signature = tk.Label(self, text="Created by B.D. Fraser", font=('arial', 8), fg="steel blue", bg="light goldenrod")
+        self.signature.pack(side='bottom')
+
+    def output_margins(self, sys_tf):
+        # gather open-loop gain and phase margins, and crossover freqs
+        gain_m, pm, wg, wp = control.margin(sys_tf)
+
+        gm = 20*math.log10(gain_m) if gain_m else 0
+
+        # update gain and phase margin indication on GUI
+        self.current_margins.set("Gain margin: {0} dB\nPhase margin: {1} degrees\n"
+                                    "Gain crossover freq: {2} rad/s\n"
+                                    "Phase crossover freq: {3} rad/s".format(gm, pm, wg, wp))
+        return
 
     def plot_bode(self, oltf, tf_compensator, closed_loop=False):
         """ Plot either the open-loop or closed loop gain, dependent on closed_loop arg. 
@@ -161,6 +192,9 @@ class ClassicControl(tk.Frame):
         """
         sys_tf = (eval(oltf)*(eval(tf_compensator)))
 
+        self.output_margins(sys_tf)
+
+        # if closed loop - determine cltf
         if closed_loop:
             sys_tf = control.feedback(sys_tf, 1)
             plt.figure(2)
