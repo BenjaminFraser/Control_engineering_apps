@@ -1,22 +1,30 @@
+# import matplotlib graphical libraries
 import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
+
+import math
 import numpy as np
+
 # PIL lib for GUI image functionality
 from PIL import Image, ImageTk
+
+# import tkinter for app GUI
 import tkinter as tk
 from tkinter import ttk
+
 from scipy import signal
-import math
 import control
 
 # basic definition for s-domain 's' operator
 s = control.tf([1,0],1)
 
-LARGE_FONT= ("Verdana", 12)
-
-class ClassicalControlApp(tk.Tk):
-
+class ControlSystemApp(tk.Tk):
+    """ A tkinter based GUI application for mathematical and graphical analysis of control
+        systems. There are two main parts to the app: classical control and modern control.
+        Each part has its own dedicated page on the tkinter app, and is represented as a 
+        class that inherits from tk.Frame, and is called from this controller class.
+    """
     def __init__(self, *args, **kwargs):
         
         tk.Tk.__init__(self, *args, **kwargs)
@@ -505,25 +513,26 @@ class ModernControl(tk.Frame):
         return
 
 class PolesZerosPlots(tk.Frame):
+    """ A basic page to plot gain and phase bode plots from a set of system poles, zeros and gain """
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Open-Loop Bode plot (with poles, zeroes and gain data)", font=LARGE_FONT)
+        label = tk.Label(self, text="Open-Loop Bode plot (with poles, zeroes and gain data)", font=('Helvetica', 30, 'bold'))
         label.pack(pady=10,padx=10)
 
-        poles_label = tk.Label(self, text="Transfer function poles (seperate each by comma (,)):", font=LARGE_FONT)
+        poles_label = tk.Label(self, text="Transfer function poles (seperate each by comma (,)):", font=('Helvetica', 30, 'bold'))
         poles_label.pack()
         tf_poles = tk.Entry(self, bd = 5)
         tf_poles.insert("end", "")
         tf_poles.pack(pady=10)
 
-        zeros_label = tk.Label(self, text="Transfer function zeros (seperate each by comma (,):", font=LARGE_FONT)
+        zeros_label = tk.Label(self, text="Transfer function zeros (seperate each by comma (,):", font=('Helvetica', 30, 'bold'))
         zeros_label.pack()
         tf_zeros = tk.Entry(self, bd = 5)
         tf_zeros.insert("end", "")
         tf_zeros.pack(pady=10)
 
-        gain_label = tk.Label(self, text="Transfer function gain:", font=LARGE_FONT)
+        gain_label = tk.Label(self, text="Transfer function gain:", font=('Helvetica', 30, 'bold'))
         gain_label.pack()
         tf_gain = tk.Entry(self, bd = 5)
         tf_gain.insert("end", "1")
@@ -538,8 +547,8 @@ class PolesZerosPlots(tk.Frame):
         home_button.pack()
 
     def plot_bode(self, poles, zeros, gain):
-        """ takes in the given poles, zeros and gain, and parses them and converts into
-            a scipy transfer function, followed by plotting on a bode plot """ 
+        """ takes in given system poles, zeros and gain, and then parses and converts into
+            a scipy transfer function. The data gain and phase response data is then plotted """ 
 
         pole_strings, zero_strings = poles.split(","), zeros.split(",")
 
@@ -582,5 +591,5 @@ class PolesZerosPlots(tk.Frame):
         plt.show()
         return
 
-app = ClassicalControlApp()
+app = ControlSystemApp()
 app.mainloop()
