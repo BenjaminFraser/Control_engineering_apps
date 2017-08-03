@@ -43,7 +43,7 @@ class ControlSystemApp(tk.Tk):
 
         self.frames = {}
 
-        for F in (StartPage, ClassicControl, ModernControl, PolesZerosPlots):
+        for F in (HomePage, ClassicControl, ModernControl, PolesZerosPlots):
 
             frame = F(container, self)
 
@@ -51,7 +51,7 @@ class ControlSystemApp(tk.Tk):
 
             frame.grid(row=0, column=0, sticky="nsew")
 
-        self.show_frame(StartPage)
+        self.show_frame(HomePage)
 
     def show_frame(self, cont):
 
@@ -59,7 +59,7 @@ class ControlSystemApp(tk.Tk):
         frame.tkraise()
 
         
-class StartPage(tk.Frame):
+class HomePage(tk.Frame):
     """ Main application welcome page with a selection of buttons linking to
         seperate pages that analyse classical and digital (modern) control
         systems.
@@ -153,7 +153,7 @@ class ClassicControl(tk.Frame):
 
         # return to home button
         self.home_button = ttk.Button(self.data_area, text="Return to Home", width=25,
-                            command=lambda: controller.show_frame(StartPage))
+                            command=lambda: controller.show_frame(HomePage))
         self.home_button.pack(padx=5, pady=10)
 
         self.diagram_area = tk.Frame(self, width=700, height=600, bg="light goldenrod")
@@ -362,7 +362,7 @@ class ModernControl(tk.Frame):
 
         # return to home button
         self.home_button = ttk.Button(self.data_area, text="Return to Home", width=25,
-                            command=lambda: controller.show_frame(StartPage))
+                            command=lambda: controller.show_frame(HomePage))
         self.home_button.pack(padx=5, pady=10)
 
         self.diagram_area = tk.Frame(self, width=700, height=600, bg="wheat")
@@ -543,7 +543,7 @@ class PolesZerosPlots(tk.Frame):
         plot_button.pack()
 
         home_button = ttk.Button(self, text="Return to Home",
-                            command=lambda: controller.show_frame(StartPage))
+                            command=lambda: controller.show_frame(HomePage))
         home_button.pack()
 
     def plot_bode(self, poles, zeros, gain):
