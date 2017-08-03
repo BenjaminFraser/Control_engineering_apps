@@ -200,9 +200,8 @@ class ClassicControl(tk.Frame):
 
     def plot_bode(self, oltf, tf_compensator, closed_loop=False):
         """ Plot either the open-loop or closed loop gain, dependent on closed_loop arg. 
-            and phase response for the given transfer function. The closed-loop transfer function
-            used is simply the unity gain negative feedback model of the given
-            open-loop transfer function.
+            Gain and phase response are formed for each plot. The closed-loop transfer function
+            used is based on the unity gain negative feedback model of the input system.
         """
         sys_tf = (eval(oltf)*(eval(tf_compensator)))
 
@@ -409,9 +408,8 @@ class ModernControl(tk.Frame):
 
     def plot_bode(self, oltf, dig_compensator, sampling_time, closed_loop=False):
         """ Plot either the open-loop or closed loop gain, dependent on closed_loop arg. 
-            and phase response for the given transfer function. The closed-loop transfer function
-            used is simply the unity gain negative feedback model of the given
-            open-loop transfer function.
+            The discrete-time digital compensator model and sampling time are also required
+            to make the associated calculations.
         """
         sys_tf = eval(oltf)
 
@@ -436,8 +434,8 @@ class ModernControl(tk.Frame):
         return
 
     def plot_nyquist(self, oltf, dig_compensator, sampling_time):
-        """ Form a Nyquist plot for the given transfer function. Includes phase angle
-            lines for ease of reference.
+        """ Form a Nyquist plot for the given discrete-time transfer function. Includes a plot of the
+            unit circle to help aid stability assessment.
         """
         sys_tf = eval(oltf)
         z = control.tf([1,0],1,float(sampling_time))
@@ -459,8 +457,10 @@ class ModernControl(tk.Frame):
         return
 
     def time_domain_response(self, oltf, dig_compensator, sampling_time, ramp=False):
-        """ Plot the time-domain step response of the given transfer function.
-            The closed-loop form of the transfer function must be used for this.
+        """ Plot the discrete time-domain step response of the given transfer function.
+            The closed-loop form of the transfer function must be used for this, and the 
+            z-domain digital compensator model and sampling time are used in making the 
+            required calculations.
         """
         sys_tf = eval(oltf)
 
@@ -491,7 +491,7 @@ class ModernControl(tk.Frame):
         return
 
     def root_locus_plot(self, oltf, dig_compensator, sampling_time):
-        """ Plot the closed-loop root locus plot for the system based on the open
+        """ Plot the closed-loop root locus plot for the discrete-time system based on the open
             loop transfer function poles and zeros.  
         """
         sys_tf = eval(oltf)
