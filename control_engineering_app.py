@@ -520,19 +520,19 @@ class PolesZerosPlots(tk.Frame):
         label = tk.Label(self, text="Open-Loop Bode plot (with poles, zeroes and gain data)", font=('Helvetica', 30, 'bold'))
         label.pack(pady=10,padx=10)
 
-        poles_label = tk.Label(self, text="Transfer function poles (seperate each by comma (,)):", font=('Helvetica', 30, 'bold'))
+        poles_label = tk.Label(self, text="Transfer function poles (seperate each by comma (,)):", font=('Helvetica', 15, 'bold'))
         poles_label.pack()
         tf_poles = tk.Entry(self, bd = 5)
         tf_poles.insert("end", "")
         tf_poles.pack(pady=10)
 
-        zeros_label = tk.Label(self, text="Transfer function zeros (seperate each by comma (,):", font=('Helvetica', 30, 'bold'))
+        zeros_label = tk.Label(self, text="Transfer function zeros (seperate each by comma (,):", font=('Helvetica', 15, 'bold'))
         zeros_label.pack()
         tf_zeros = tk.Entry(self, bd = 5)
         tf_zeros.insert("end", "")
         tf_zeros.pack(pady=10)
 
-        gain_label = tk.Label(self, text="Transfer function gain:", font=('Helvetica', 30, 'bold'))
+        gain_label = tk.Label(self, text="Transfer function gain:", font=('Helvetica', 15, 'bold'))
         gain_label.pack()
         tf_gain = tk.Entry(self, bd = 5)
         tf_gain.insert("end", "1")
