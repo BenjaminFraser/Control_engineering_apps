@@ -13,7 +13,6 @@ import control
 # basic definition for s-domain 's' operator
 s = control.tf([1,0],1)
 
-
 LARGE_FONT= ("Verdana", 12)
 
 class ClassicalControlApp(tk.Tk):
@@ -59,8 +58,10 @@ class StartPage(tk.Frame):
     """
     def __init__(self, parent, controller):
         tk.Frame.__init__(self,parent, bg="powder blue")
-        label = tk.Label(self, text="Control Engineering Modeller", font=('Helvetica', 30, 'bold'), fg="royal blue", bg="white smoke", bd=5)
-        label.pack(pady=10,padx=10, fill='both')
+        top = tk.Frame(self, width=1200, height=100, bg="royal blue")
+        top.pack(side="top")
+        self.title = tk.Label(top, text="Control Engineering Modeller", font=('Helvetica', 30, 'bold'), fg="royal blue", bg="white smoke", bd=5)
+        self.title.pack(pady=10,padx=10, fill='both')
 
         classic_button = ttk.Button(self, text="Classical Control Analysis", width=30,
                             command=lambda: controller.show_frame(ClassicControl))
@@ -94,23 +95,23 @@ class ClassicControl(tk.Frame):
         tk.Frame.__init__(self, parent, bg="light goldenrod")
         top = tk.Frame(self, width=1200, height=100, bg="grey")
         top.pack(side="top")
-        self.label = tk.Label(top, text="Classical Control Systems Plotter", font=('Helvetica', 30, 'bold'), bg="grey", bd=5)
+        self.label = tk.Label(top, text="Classical Control System Plotter", font=('Helvetica', 30, 'bold'), bg="grey", bd=5)
         self.label.pack(pady=10,padx=10)
 
         self.data_area = tk.Frame(self, width=500, height=600, bg="light goldenrod")
         self.data_area.pack(side='left', padx=10)
 
-        self.oltf_label = tk.Label(self.data_area, text="Open-loop Transfer function (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="light goldenrod")
+        self.oltf_label = tk.Label(self.data_area, text="G(s) - Plant Transfer Function (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="light goldenrod")
         self.oltf_label.pack()
         self.oltf = tk.Entry(self.data_area, bd = 5, bg="powder blue")
         self.oltf.insert("end", "1/(s*(s+1))")
-        self.oltf.pack(pady=5, padx=10)
+        self.oltf.pack(pady=10, padx=10)
 
-        self.compensator_label = tk.Label(self.data_area, text="Open-loop Transfer function Compensator (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="light goldenrod")
+        self.compensator_label = tk.Label(self.data_area, text="F(s) - Compensator Transfer Function (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="light goldenrod")
         self.compensator_label.pack()
         self.tf_compensator = tk.Entry(self.data_area, bd = 5, bg="cornsilk")
         self.tf_compensator.insert("end", "1")
-        self.tf_compensator.pack(pady=5, padx=10)
+        self.tf_compensator.pack(pady=10, padx=10)
 
         # button and functionality for bode plot
         self.bode_button = ttk.Button(self.data_area, text="Plot Open-loop Bode", width=25,
@@ -160,22 +161,27 @@ class ClassicControl(tk.Frame):
         # results area for displaying current gain and phase margin
         self.results_area = tk.Frame(self.diagram_area, width=700, height=200, bg="light goldenrod")
         self.results_area.pack()
-
         self.margin_label = tk.Label(self.results_area, text="System stability margins:", font=('Helvetica', 20, 'bold'), bg="light goldenrod")
         self.margin_label.pack(pady=20)
-
         self.current_margins = tk.StringVar()
         self.margin_text = tk.Label(self.results_area, textvariable=self.current_margins, height=4, width=50, font=('Helvetica', 15, 'bold'), bg="light goldenrod")
         self.margin_text.pack(pady=5)
         self.current_margins.set("Input a function to display gain and phase margins")
 
+        # lower sig block
         self.signature = tk.Label(self, text="Created by B.D. Fraser", font=('arial', 8), fg="steel blue", bg="light goldenrod")
         self.signature.pack(side='bottom')
 
     def output_margins(self, sys_tf):
+        """ Outputs the system stability margins based on the passed transfer
+            function argument. Analysed parameters include the gain margin (dB),
+            phase margin (deg), gain crossover freq (rad/s) and phase crossover
+            freq (rad/s)
+        """
         # gather open-loop gain and phase margins, and crossover freqs
         gain_m, pm, wg, wp = control.margin(sys_tf)
 
+        # convert gain margin to dB
         gm = 20*math.log10(gain_m) if gain_m else 0
 
         # update gain and phase margin indication on GUI
@@ -277,7 +283,7 @@ class ClassicControl(tk.Frame):
         sys_tf = eval(oltf)*eval(tf_compensator)
         control.rlocus(sys_tf)
         plt.grid()
-        plt.title('System Nyquist Plot')
+        plt.title('S-Domain Root Locus Plot')
         plt.xlabel('Real')
         plt.ylabel('Imaginary')
         plt.show()
@@ -290,131 +296,170 @@ class ModernControl(tk.Frame):
     """
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent, bg="wheat")
-        self.label = tk.Label(self, text="Classical Control Systems Plotter", font=('arial', 30, 'bold'), bg="wheat")
+        top = tk.Frame(self, width=1200, height=100, bg="grey")
+        top.pack(side="top")
+        self.label = tk.Label(top, text="Classical Control System Plotter", font=('Helvetica', 30, 'bold'), bg="grey", bd=5)
         self.label.pack(pady=10,padx=10)
 
-        self.numerator_label = tk.Label(self, text="Transfer function Numerator (Algebraic form):", font=('arial', 15), bg="wheat")
-        self.numerator_label.pack()
-        self.tf_numerator = tk.Entry(self, bd = 5, bg="powder blue")
-        self.tf_numerator.insert("end", "1")
-        self.tf_numerator.pack(pady=5, padx=10)
+        self.data_area = tk.Frame(self, width=500, height=600, bg="wheat")
+        self.data_area.pack(side='left', padx=10)
 
-        self.denominator_label = tk.Label(self, text="Transfer function Denumerator (Algebraic form):", font=('arial', 15), bg="wheat")
-        self.denominator_label.pack()
-        self.tf_denominator = tk.Entry(self, bd = 5, bg="cornsilk")
-        self.tf_denominator.insert("end", "s*(s+1)")
-        self.tf_denominator.pack(pady=5, padx=10)
+        self.oltf_label = tk.Label(self.data_area, text="G(s) - Plant Transfer Function (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="wheat")
+        self.oltf_label.pack()
+        self.oltf = tk.Entry(self.data_area, bd = 5, bg="powder blue")
+        self.oltf.insert("end", "1/(s*(s+1))")
+        self.oltf.pack(pady=10, padx=10)
 
-        self.sampling_label = tk.Label(self, text="System Sampling Time period (seconds):", font=('arial', 15), bg="wheat")
+        self.compensator_label = tk.Label(self.data_area, text="F(s) - Compensator Transfer Function (Algebraic form):", font=('Helvetica', 15, 'bold'), bg="wheat")
+        self.compensator_label.pack()
+        self.tf_compensator = tk.Entry(self.data_area, bd = 5, bg="cornsilk")
+        self.tf_compensator.insert("end", "1")
+        self.tf_compensator.pack(pady=10, padx=10)
+
+        self.sampling_label = tk.Label(self.data_area, text="System Sampling Time period (seconds):", font=('arial', 15), bg="wheat")
         self.sampling_label.pack()
-        self.sampling_time = tk.Entry(self, bd = 5, bg="cornsilk")
-        self.sampling_time.insert("end", "1")
+        self.sampling_time = tk.Entry(self.data_area, bd = 5, bg="cornsilk")
+        self.sampling_time.insert("end", "0.1")
         self.sampling_time.pack(pady=5, padx=10)
 
         # button and functionality for bode plot
-        self.bode_button = ttk.Button(self, text="Plot Open-loop Bode", width=25,
-                            command= lambda: self.plot_bode(self.tf_numerator.get(), self.tf_denominator.get()))
+        self.bode_button = ttk.Button(self.data_area, text="Plot Open-loop Bode", width=25,
+                            command= lambda: self.plot_bode(self.oltf.get(), self.tf_compensator.get(), self.sampling_time.get()))
         self.bode_button.pack(pady=5, padx=10)
 
         # button and functionality for bode plot
-        self.cltf_bode_button = ttk.Button(self, text="Plot Closed-loop Bode", width=25,
-                            command= lambda: self.plot_bode(self.tf_numerator.get(), self.tf_denominator.get(), closed_loop=True))
+        self.cltf_bode_button = ttk.Button(self.data_area, text="Plot Closed-loop Bode", width=25,
+                            command= lambda: self.plot_bode(self.oltf.get(), self.tf_compensator.get(), self.sampling_time.get(), closed_loop=True))
         self.cltf_bode_button.pack(pady=5, padx=10)
 
         # button and command functionality for Nyquist plot
-        self.nyquist_button = ttk.Button(self, text="Make Nyquist plot", width=25,
-                            command= lambda: self.plot_nyquist(self.tf_numerator.get(), self.tf_denominator.get()))
+        self.nyquist_button = ttk.Button(self.data_area, text="Make Nyquist plot", width=25,
+                            command= lambda: self.plot_nyquist(self.oltf.get(), self.tf_compensator.get(), self.sampling_time.get()))
         self.nyquist_button.pack(pady=5, padx=10)
 
         # button and command functionality for Time domain plots
-        self.step_response_button = ttk.Button(self, text="Plot Step Response", width=25,
-                            command= lambda: self.time_domain_response(self.tf_numerator.get(), self.tf_denominator.get(), self.sampling_time.get()))
+        self.step_response_button = ttk.Button(self.data_area, text="Plot Discrete Step Response", width=25,
+                            command= lambda: self.time_domain_response(self.oltf.get(), self.tf_compensator.get(), self.sampling_time.get()))
         self.step_response_button.pack(pady=5, padx=10)
 
         # button and command functionality for Time domain plots
-        self.ramp = ttk.Button(self, text="Plot Ramp Response", width=25,
-                            command= lambda: self.time_domain_response(self.tf_numerator.get(), self.tf_denominator.get(), self.sampling_time.get(), ramp=True))
+        self.ramp = ttk.Button(self.data_area, text="Plot Discrete Ramp Response", width=25,
+                            command= lambda: self.time_domain_response(self.oltf.get(), self.tf_compensator.get(), self.sampling_time.get(), ramp=True))
         self.ramp.pack(pady=5, padx=10)
 
+        # button and command functionality for Root Locus plots
+        self.root_locus = ttk.Button(self.data_area, text="Plot Z-Domain Root Locus", width=25,
+                            command= lambda: self.root_locus_plot(self.oltf.get(), self.tf_compensator.get(), self.sampling_time.get()))
+        self.root_locus.pack(pady=5, padx=10)
+
         # return to home button
-        self.home_button = ttk.Button(self, text="Return to Home", width=25,
+        self.home_button = ttk.Button(self.data_area, text="Return to Home", width=25,
                             command=lambda: controller.show_frame(StartPage))
         self.home_button.pack(padx=5, pady=10)
 
+        self.diagram_area = tk.Frame(self, width=700, height=600, bg="wheat")
+        self.diagram_area.pack(side='right')
+
         # create a canvas object and insert front page image
-        self.canvas = tk.Canvas(self, width=300, height=300, bg="wheat")
+        self.canvas = tk.Canvas(self.diagram_area, width=700, height=300, bg="wheat")
         self.canvas.pack()
-        self.img_file = Image.open("transfer_function_system.gif")
+        self.img_file = Image.open("digital_control_system.gif")
         self.display_img = ImageTk.PhotoImage(self.img_file)
-        self.canvas.create_image(150, 150, image=self.display_img)
+        self.canvas.create_image(330, 150, image=self.display_img)
 
-        signature = tk.Label(self, text="Created by B.D. Fraser", font=('arial', 8), fg="steel blue", bg="powder blue")
-        signature.pack(side='bottom')
+        # results area for displaying current gain and phase margin
+        self.results_area = tk.Frame(self.diagram_area, width=700, height=200, bg="wheat")
+        self.results_area.pack()
+        self.margin_label = tk.Label(self.results_area, text="System stability margins:", font=('Helvetica', 20, 'bold'), bg="wheat")
+        self.margin_label.pack(pady=20)
+        self.current_margins = tk.StringVar()
+        self.margin_text = tk.Label(self.results_area, textvariable=self.current_margins, height=4, width=50, font=('Helvetica', 15, 'bold'), bg="wheat")
+        self.margin_text.pack(pady=5)
+        self.current_margins.set("Input a function to display gain and phase margins")
 
+        # lower sig block
+        self.signature = tk.Label(self, text="Created by B.D. Fraser", font=('arial', 8), fg="steel blue", bg="wheat")
+        self.signature.pack(side='bottom')
 
-    def plot_bode(self, tf_numerator, tf_denominator, closed_loop=False):
+    def output_margins(self, sys_tf):
+        """ Outputs the system stability margins based on the passed transfer
+            function argument. Analysed parameters include the gain margin (dB),
+            phase margin (deg), gain crossover freq (rad/s) and phase crossover
+            freq (rad/s)
+        """
+        # gather open-loop gain and phase margins, and crossover freqs
+        gain_m, pm, wg, wp = control.margin(sys_tf)
+
+        # convert gain margin to dB
+        gm = 20*math.log10(gain_m) if gain_m else 0
+
+        # update gain and phase margin indication on GUI
+        self.current_margins.set("Gain margin: {0} dB\nPhase margin: {1} degrees\n"
+                                    "Gain crossover freq: {2} rad/s\n"
+                                    "Phase crossover freq: {3} rad/s".format(gm, pm, wg, wp))
+        return
+
+    def plot_bode(self, oltf, dig_compensator, sampling_time, closed_loop=False):
         """ Plot either the open-loop or closed loop gain, dependent on closed_loop arg. 
             and phase response for the given transfer function. The closed-loop transfer function
             used is simply the unity gain negative feedback model of the given
             open-loop transfer function.
         """
-        sys_tf = (eval(tf_numerator)/(eval(tf_denominator)))
+        sys_tf = eval(oltf)
 
+        # basic definition for z-domain 'z' operator for digital freq analysis
+        z = control.tf([1,0],1,float(sampling_time))
+
+        discrete_sys_tf = control.sample_system(sys_tf, float(sampling_time), method='zoh')*eval(dig_compensator)
+
+        self.output_margins(sys_tf)
+
+        # if closed loop - determine cltf
         if closed_loop:
-            sys_tf = control.feedback(sys_tf, 1)
+            tf_cl = control.tf(discrete_sys_tf)
+            discrete_sys_tf = control.feedback(tf_cl, 1)
             plt.figure(2)
         else:
             plt.figure(1)
 
-        # obtain magnitude, phase and freq range using python control
-        mag, phase, omega = control.bode_plot(sys_tf, dB=True)
-
-        plt.figtext(0.3, 0.93, "Gain and Phase Response Bode Plots", size="large", weight="bold")
-
-        # plot magnitude gain response sub-plot
-        plt.subplot(2,1,1)
-        plt.semilogx(omega,mag,'k-',linewidth=1, color="b")
-        plt.grid(b=True, which='major', color='k', alpha=0.8)
-        plt.grid(b=True, which='minor', color='k', linestyle='--', alpha=0.4)
-        plt.ylabel('Gain magnitude (dB)', weight="bold")
-
-        # plot phase response sub-plot
-        plt.subplot(2,1,2)
-        plt.semilogx(omega,phase,'k-',linewidth=1, color="g")
-        plt.grid(b=True, which='major', color='k', alpha=0.8)
-        plt.grid(b=True, which='minor', color='k', linestyle='--', alpha=0.4)
-        plt.ylabel('Phase (degrees)', weight="bold")
-        plt.xlabel('Frequency (rad/s)', weight="bold")
+        freq_vector=np.linspace(0, np.pi/float(sampling_time), 500)
+        control.bode_plot(discrete_sys_tf, omega=freq_vector, dB=True)
         plt.show()
         return
 
-    def plot_nyquist(self, tf_numerator, tf_denominator):
+    def plot_nyquist(self, oltf, dig_compensator, sampling_time):
         """ Form a Nyquist plot for the given transfer function. Includes phase angle
             lines for ease of reference.
         """
-        sys_tf = (eval(tf_numerator)/(eval(tf_denominator)))
+        sys_tf = eval(oltf)
+        z = control.tf([1,0],1,float(sampling_time))
+        discrete_sys_tf = control.sample_system(sys_tf, float(sampling_time), method='zoh')*eval(dig_compensator)
+
         plt.figure(3)
-        control.nyquist_plot(sys_tf)
+        control.nyquist_plot(discrete_sys_tf)
         plt.axis([-2,2,-2,2])
-        theta = np.linspace(0,6.284,100)
-        plt.plot(np.cos(theta),np.sin(theta),'r-')
-        phi = np.linspace(0,360,37)/57.3
-    
-        for j in range(len(phi)):
-            plt.plot([0,np.sin(phi[j])],[0,np.cos(phi[j])],'g--')            
         plt.grid(1)
-        plt.title('System Nyquist Plot')
+        plt.title('Digital System Nyquist Plot')
         plt.xlabel('Real')
         plt.ylabel('Imaginary')
+
+        # plot the unit circle for reference
+        theta = np.linspace(0, np.pi*2, 100)
+        plt.plot(np.cos(theta),np.sin(theta),'g--') 
+
         plt.show()
         return
 
-    def time_domain_response(self, tf_numerator, tf_denominator, sampling_time, ramp=False):
+    def time_domain_response(self, oltf, dig_compensator, sampling_time, ramp=False):
         """ Plot the time-domain step response of the given transfer function.
             The closed-loop form of the transfer function must be used for this.
         """
-        sys_tf = (eval(tf_numerator)/(eval(tf_denominator)))
-        discrete_sys_tf = control.sample_system(sys_tf, int(sampling_time), method='zoh')
+        sys_tf = eval(oltf)
+
+        # basic definition for z-domain 'z' operator for digital freq analysis
+        z = control.tf([1,0],1,float(sampling_time))
+
+        discrete_sys_tf = control.sample_system(sys_tf, float(sampling_time), method='zoh')*eval(dig_compensator)
         closed_loop_tf = control.feedback(discrete_sys_tf, 1)
 
         # if ramp selected, convert to ramp response, otherwise do step
@@ -423,16 +468,39 @@ class ModernControl(tk.Frame):
             plt.figure(5)
             [time, _] = control.step_response(closed_loop_tf)
             [x,y] = control.step_response((closed_loop_tf/s), time)
-            plt.plot([0.0, max(x)], [0.0, max(x)], 'r--')
+            print(closed_loop_tf)
+            #plt.plot([0.0, max(x)], [0.0, max(x)], 'r--')
         else:
             [x,y] = control.step_response(closed_loop_tf)
-            plt.figure(4)
+            fig = plt.figure(4)
             title_txt = "Step"
-        plt.stem(x)
+        plt.stem(y)
         plt.title("Discrete Time Response to {0} input".format(title_txt))
-        plt.xlabel("Sample number (sample period of {0}".format(sampling_time))
+        plt.xlabel("Sample number (sample period of {0})".format(sampling_time))
         plt.ylabel('Response')
         plt.grid(1)
+        plt.show()
+        return
+
+    def root_locus_plot(self, oltf, dig_compensator, sampling_time):
+        """ Plot the closed-loop root locus plot for the system based on the open
+            loop transfer function poles and zeros.  
+        """
+        sys_tf = eval(oltf)
+        z = control.tf([1,0],1,float(sampling_time))
+        discrete_sys_tf = control.sample_system(sys_tf, float(sampling_time), method='zoh')*eval(dig_compensator)
+
+        control.rlocus(discrete_sys_tf)
+        theta=np.linspace(0, 2*np.pi, 100)
+        plt.plot(np.cos(theta),np.sin(theta),'m--')
+        damping=0.7
+        rtz=np.sqrt(1-damping**2)
+        plt.plot(np.real(np.exp(-theta*damping+1.0j*theta*rtz)),np.imag(np.exp(-theta*damping+1.0j*theta*rtz)),'g--')
+        plt.plot(np.real(np.exp(-theta*damping-1.0j*theta*rtz)),np.imag(np.exp(-theta*damping-1.0j*theta*rtz)),'g--')
+        plt.grid(1)
+        plt.title('Z-Domain Root-Locus Plot')
+        plt.xlabel('Real')
+        plt.ylabel('Imaginary')
         plt.show()
         return
 
