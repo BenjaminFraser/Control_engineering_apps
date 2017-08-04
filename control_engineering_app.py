@@ -420,16 +420,19 @@ class ModernControl(tk.Frame):
 
         self.output_margins(sys_tf)
 
-        # if closed loop - determine cltf
+        # if closed loop - determine cltf and set plot accordingly - else open loop
         if closed_loop:
             tf_cl = control.tf(discrete_sys_tf)
             discrete_sys_tf = control.feedback(tf_cl, 1)
             plt.figure(2)
+            plot_type = "Closed-Loop"
         else:
             plt.figure(1)
+            plot_type = "Open-Loop"
 
         freq_vector=np.linspace(0, np.pi/float(sampling_time), 500)
         control.bode_plot(discrete_sys_tf, omega=freq_vector, dB=True)
+        plt.figtext(0.3, 0.93, "Discrete-time {0} Bode Plot".format(plot_type), size="large", weight="bold")
         plt.show()
         return
 
@@ -475,7 +478,10 @@ class ModernControl(tk.Frame):
             title_txt = "Ramp"
             plt.figure(5)
             [time, _] = control.step_response(closed_loop_tf)
-            [x,y] = control.step_response((closed_loop_tf/s), time)
+
+            # determine output of cltf to ramp input (in terms of z)
+            ramp_output = closed_loop_tf*((float(sampling_time)*z))/((z-1)*(z-1))
+            [x,y] = control.step_response(ramp_output, time)
             print(closed_loop_tf)
             #plt.plot([0.0, max(x)], [0.0, max(x)], 'r--')
         else:

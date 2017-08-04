@@ -1,4 +1,4 @@
-# **CONTROL ENGINEERING ANALYSIS AND SIMULATION APP - README** 
+# **CONTROL ENGINEERING ANALYSIS AND SIMULATION APP** 
 
 ----------
 
@@ -8,6 +8,8 @@ The control engineering app is designed to provide quick and convenient analysis
 
 The application is built using Python, with a tkinter GUI, and operates using python control, matplotlib, scipy and numpy.
 
+### Classical Control Systems Examples
+
 ![application overview example](example_images/classical_control_example.png?raw=True "Application overview - The many different features available for classical control analysis.")
 
 ![application plot examples](example_images/classical_control_example_2.png?raw=True "Application overview - An example of bode plots producable by the application.")
@@ -16,7 +18,9 @@ The application is built using Python, with a tkinter GUI, and operates using py
 
 ![application discrete time examples](example_images/digital_control_example.png?raw=True "An overview of the modern control system interface within the application.")
 
-![application discrete time domain example](example_images/digital_control_example_2.png?raw=True "An example of the discrete time-domain plot capability.")
+![application discrete time domain example](example_images/digital_control_example_3.png?raw=True "An example of the discrete time-domain plot capability.")
+
+![application discrete time domain example](example_images/digital_control_bode_example.png?raw=True "An example of the discrete time-domain bode plot capability.")
 
 ----------
 
