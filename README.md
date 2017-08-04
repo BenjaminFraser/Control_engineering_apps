@@ -20,7 +20,7 @@ The application is built using Python, with a tkinter GUI, and operates using py
 
 ![application discrete time examples](example_images/digital_control_example.png?raw=True "An overview of the modern control system interface within the application.")
 
-![application discrete time domain example](example_images/digital_control_example_3.png?raw=True "An example of the discrete time-domain plot capability.")
+![application discrete time domain example](example_images/digital_control_example_2.png?raw=True "An example of the discrete time-domain plot capability.")
 
 ![application discrete time domain example](example_images/digital_control_bode_example.png?raw=True "An example of the discrete time-domain bode plot capability.")
 
