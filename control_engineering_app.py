@@ -507,7 +507,7 @@ class ModernControl(tk.Frame):
             title_txt = "Step"
         plt.stem(y)
         plt.title("Discrete Time Response to {0} input".format(title_txt))
-        plt.xlabel("Sample number (sample period of {0})".format(sampling_time))
+        plt.xlabel("Sample number (sample period of {0}s)".format(sampling_time))
         plt.ylabel('Response')
         plt.grid(1)
         plt.show()

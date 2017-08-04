@@ -46,9 +46,10 @@ The application is designed in Python 3.4, but has been tested to work on Python
 
 ## Author 
 
-Benjamin Fraser
+Benjamin Fraser 
 
-Date created: 29/07/2017
-Date last modified: 4/08/2017
+Date created: 29/07/2017 
+
+Date last modified: 4/08/2017 
 
 --------
