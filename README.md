@@ -16,6 +16,8 @@ The application is built using Python, with a tkinter GUI, and operates using py
 
 ![application time domain examples](example_images/time_response_examples.png?raw=True "Example of plotting a time-domain response to both step and ramp inputs.")
 
+### Digital Control Systems Examples
+
 ![application discrete time examples](example_images/digital_control_example.png?raw=True "An overview of the modern control system interface within the application.")
 
 ![application discrete time domain example](example_images/digital_control_example_3.png?raw=True "An example of the discrete time-domain plot capability.")
@@ -32,7 +34,11 @@ The application is designed in Python 3.4, but has been tested to work on Python
 
 ## Example use cases and images
 
+### Nyquist plots - for both classical and digital system analysis
+
 ![application nyquist plot](example_images/nyquist_example.png?raw=True "Example of using the app to produce a Nyquist plot.")
+
+### Root-Locus plots - in both the s-domain and z-domain, as required.
 
 ![application root locus](example_images/root_locus_example.png?raw=True "Root locus plotting example")
 
@@ -41,5 +47,8 @@ The application is designed in Python 3.4, but has been tested to work on Python
 ## Author 
 
 Benjamin Fraser
+
+Date created: 29/07/2017
+Date last modified: 4/08/2017
 
 --------
