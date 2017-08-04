@@ -1,3 +1,20 @@
+#!/usr/bin/env python3.4
+""" 
+    Control Engineering Analysis and Simulation Tool
+
+    A software tool produced using Python 3.4, tkinter, matpotlib,
+    numpy, scipy, python-control, and Pillow. The application allows
+    analysis and graphical visualisation of many different classical
+    (purely analogue) and modern (digital-processed) control systems
+    based on user-input transfer functions.
+
+    File name: control_engineering_app.py
+    Author: Benjamin D Fraser
+    Date created: 29/07/2017
+    Date last modified: 4/08/2017
+    Python Version: 3.4
+"""
+
 # import matplotlib graphical libraries
 import matplotlib
 matplotlib.use("TkAgg")
